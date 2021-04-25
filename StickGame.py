@@ -1,3 +1,5 @@
+import time
+
 class Node(object):
     def __init__(self, sticks, level):
         self.sticks = sticks
@@ -10,9 +12,14 @@ class Node(object):
             return
         elif self.sticks == 1:
             self.children.append(Node(self.sticks - 1, self.switchlevel()))
+        elif self.sticks == 2:
+            self.children.append(Node(self.sticks - 1, self.switchlevel()))
+            self.children.append(Node(self.sticks - 2, self.switchlevel()))
         else:
             self.children.append(Node(self.sticks - 1, self.switchlevel()))
             self.children.append(Node(self.sticks - 2, self.switchlevel()))
+            self.children.append(Node(self.sticks - 3, self.switchlevel()))
+
 
     def switchlevel(self):
         if self.level == 'MAX':
@@ -26,8 +33,13 @@ class Node(object):
             ret += child.__str__(nlevel+1)
         return ret
 
+
 def main():
-    n = Node(7, 'MAX')
+    n = Node(21, 'MAX')
     print(n)
+
+
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    print(time.time()-start_time)
