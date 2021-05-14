@@ -2,13 +2,28 @@ import time
 from operator import attrgetter
 from tkinter import *
 
+class resultScreen:
+    def __init__(self,master,winner):
+        self.master = master
+        self.master.title('Results')
+        self.master.geometry("+300+300")
+        self.resultablel = Label(self.master, text='{} won!'.format(winner)).grid(row=0,column=1)
+        self.playagainButton = Button(self.master,text='Play again!',width=10,command=self.playagain).grid(row=1,column=0)
+        self.exitButton = Button(self.master,text='Exit',width=10,command=master.destroy).grid(row=1,column=2)
+    def playagain(self):
+        self.master.destroy()
+        self.master = Tk()
+        self.app = setupScreen(self.master)
+        self.master.mainloop()
 
 class setupScreen:
     def __init__(self, master):
         self.master = master
+        self.master.title('Setup')
+        self.master.geometry("+300+300")
         self.setupLablel = Label(self.master, text='Who starts the game?').grid(row=0,column=1)
-        self.cpuButton = Button(self.master,text='CPU',padx=10,command=lambda: self.playgame('CPU')).grid(row=1,column=0)
-        self.playerButton = Button(self.master,text='PLAYER',padx=10,command=lambda: self.playgame('ME')).grid(row=1,column=2)
+        self.cpuButton = Button(self.master,text='CPU',width=6,command=lambda: self.playgame('CPU')).grid(row=1,column=0)
+        self.playerButton = Button(self.master,text='PLAYER',width=6,command=lambda: self.playgame('ME')).grid(row=1,column=2)
     def playgame(self,fp):
         self.master.destroy()
         self.master = Tk()
@@ -19,13 +34,15 @@ class setupScreen:
 class gameScreen:
     def __init__(self,master,fp):
         self.master = master
-        self.nSticks = 21
-        self.gameState = Label(self.master, text=('| '*21))
-        self.stickState = Label(self.master, text=21)
+        self.master.title('Subtraction Game')
+        self.master.geometry("+300+300")
+        self.nSticks = 17
+        self.gameState = Label(self.master, text=('| '*self.nSticks))
+        self.stickState = Label(self.master, text=self.nSticks)
         self.infoState = Label(self.master, text='')
-        self.oneStBut = Button(self.master, text='1', command=lambda: self.maketurn(1))
-        self.twoStBut = Button(self.master, text='2', command=lambda: self.maketurn(2))
-        self.threeStBut = Button(self.master, text='3', command=lambda: self.maketurn(3))
+        self.oneStBut = Button(self.master, text='1', width = 4, command=lambda: self.maketurn(1))
+        self.twoStBut = Button(self.master, text='2', width = 4, command=lambda: self.maketurn(2))
+        self.threeStBut = Button(self.master, text='3', width = 4, command=lambda: self.maketurn(3))
 
         self.gameState.grid(row=0,column=1)
         self.stickState.grid(row=0,column=2)
@@ -45,7 +62,10 @@ class gameScreen:
         self.gameState['text']=('| '*self.nSticks)
         self.stickState['text']=(str(self.nSticks))
         if self.nSticks == 0:
-            self.infoState['text'] = 'YOU WON'
+            self.master.destroy()
+            self.master = Tk()
+            self.app = resultScreen(self.master,'You')
+            self.master.mainloop()
         else:
             self.cputurn()
     def cputurn(self):
@@ -58,7 +78,10 @@ class gameScreen:
         self.gameState['text']=('| '*self.nSticks)
         self.stickState['text']=(str(self.nSticks))
         if self.nSticks == 0:
-            self.infoState['text'] = 'CPU WON'
+            self.master.destroy()
+            self.master = Tk()
+            self.app = resultScreen(self.master,'CPU')
+            self.master.mainloop()
 
 
 
@@ -83,7 +106,6 @@ class Node(object):
         if self.sticks == 1:
             self.children.append(Node(self.sticks - 1, self.switchlevel()))
         elif self.sticks == 2:
-        #else:
             self.children.append(Node(self.sticks - 1, self.switchlevel()))
             self.children.append(Node(self.sticks - 2, self.switchlevel()))
         else:
@@ -99,53 +121,16 @@ class Node(object):
             return 'MAX'
 
     def __str__(self, nlevel=0):
-        ret = '\t'*nlevel+repr(self.sticks)+' '+repr(self.value)+'\n'
+        ret = '\t'*nlevel+repr(self.level)+' '+repr(self.sticks)+' '+repr(self.value)+'\n'
         for child in self.children:
             ret += child.__str__(nlevel+1)
         return ret
-
-
-def play(fp, scount):
-    sticks = scount
-    if (fp=="CPU"):
-        n = Node(sticks, 'MAX')
-    else:
-        nsticks = input("Pick up 1, 2 or 3 sticks ")
-        sticks -= int(nsticks)
-        n = Node(sticks,'MAX')
-    while(sticks>0):
-        print('|'*sticks)
-        for child in n.children:
-            if n.value == child.value:
-                print('CPU is picking up {} sticks'.format(sticks-child.sticks))
-                sticks = child.sticks
-                n = child
-                break
-        if sticks == 0:
-            break
-        print('|'*sticks)
-        nsticks = input("Pick up 1, 2 or 3 sticks ")
-        sticks -= int(nsticks)
-        for child in n.children:
-            if child.sticks == sticks:
-                n = child
-    if n.level == 'MIN':
-        print('CPU WON')
-    else:
-        print('YOU WON')
-
-def playcpubutton():
-    root.destroy()
-    return
-def playhumanbutton():
-    return
+  
 def main():
     root = Tk()
-    root.title('Stick Game')
+    root.title('Subtraction Game')
     ss = setupScreen(root)
-
     root.mainloop()
-
 
 
 if __name__ == '__main__':
